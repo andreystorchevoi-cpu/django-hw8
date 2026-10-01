@@ -1,60 +1,53 @@
 from django.db import models
 
-class Category(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Название категории")
 
-    class Meta:
-        verbose_name = "Категория"
-        verbose_name_plural = "Категории"
+class Category(models.Model):
+    name = models.CharField(max_length=255)
+    # Ваши остальные поля модели Category...
 
     def __str__(self):
         return self.name
 
+    class Meta:
+        db_table = 'task_manager_category'
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'  # Или 'Category', если требуется жестко совпадение с 'Category'
+        constraints = [
+            models.UniqueConstraint(fields=['name'], name='unique_category_name')
+        ]
+
 
 class Task(models.Model):
-    STATUS_CHOICES = [
-        ('New', 'New'),
-        ('In progress', 'In progress'),
-        ('Pending', 'Pending'),
-        ('Blocked', 'Blocked'),
-        ('Done', 'Done'),
-    ]
-
-    title = models.CharField(max_length=200, verbose_name="Название задачи")
-    description = models.TextField(blank=True, null=True, verbose_name="Описание задачи")
-    categories = models.ManyToManyField(Category, related_name="tasks", verbose_name="Категории")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='New', verbose_name="Статус")
-    deadline = models.DateTimeField(verbose_name="Дедлайн")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
-
-    class Meta:
-        verbose_name = "Задача"
-        verbose_name_plural = "Задачи"
-        unique_together = ['title', 'created_at']
+    title = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)  # Поле даты создания
+    # Ваши остальные поля модели Task...
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        db_table = 'task_manager_task'
+        ordering = ['-created_at']  # Сортировка по убыванию даты создания
+        verbose_name = 'Task'
+        verbose_name_plural = 'Tasks'
+        constraints = [
+            models.UniqueConstraint(fields=['title'], name='unique_task_title')
+        ]
 
 
 class SubTask(models.Model):
-    STATUS_CHOICES = [
-        ('New', 'New'),
-        ('In progress', 'In progress'),
-        ('Pending', 'Pending'),
-        ('Blocked', 'Blocked'),
-        ('Done', 'Done'),
-    ]
-
-    title = models.CharField(max_length=200, verbose_name="Название подзадачи")
-    description = models.TextField(blank=True, null=True, verbose_name="Описание подзадачи")
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="subtasks", verbose_name="Основная задача")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='New', verbose_name="Статус")
-    deadline = models.DateTimeField(verbose_name="Дедлайн")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
-
-    class Meta:
-        verbose_name = "Подзадача"
-        verbose_name_plural = "Подзадачи"
+    title = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)  # Поле даты создания
+    # Ваши остальные поля модели SubTask...
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        db_table = 'task_manager_subtask'
+        ordering = ['-created_at']  # Сортировка по убыванию даты создания
+        verbose_name = 'SubTask'
+        verbose_name_plural = 'SubTasks'
+        constraints = [
+            models.UniqueConstraint(fields=['title'], name='unique_subtask_title')
+        ]
